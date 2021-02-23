@@ -70,9 +70,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     ROLE = (
         ('admin', _("Admin")),
-        ('customer', _("I'm Financial Advisor.")),
-        ('Curious', _("I'm Curious.")),
-        ('Other', _("Other Reason.")),
+        ('customer', _("customer    ")),
+        # ('Curious', _("I'm Curious.")),
+        # ('Other', _("Other Reason.")),
     )
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -90,6 +90,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     visitReason = MultiSelectField(choices=VISIT_REASON)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name=_("Created At"))
     modified_at = models.DateTimeField(auto_now=True, db_index=True, verbose_name=_("Modified At"))
+    # adding OTP column
+    otp = models.CharField(max_length=100, null=True, blank=True, verbose_name=_("OTP"))
+
     is_staff = models.BooleanField(
         _("staff"),
         default=False,

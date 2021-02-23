@@ -3,6 +3,21 @@ from .models import User
 from cities_light.models import Country, Region
 
 
+
+class CountrySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(required=True)
+    class Meta:
+        model = Country
+        fields = ['id', 'name', 'code2']
+
+
+class StateSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(required=True)
+    class Meta:
+        model = Region
+        fields = ['id', 'name']
+
+
 class CreateUserSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
@@ -11,11 +26,11 @@ class CreateUserSerializer(serializers.ModelSerializer):
     email = serializers.CharField(required=True)
     gender = serializers.CharField(required=True)
     dob = serializers.DateField(required=True)
-    role = serializers.CharField(required=True)
+    # role = serializers.CharField(required=True)
     # profile_picture = serializers.ImageField(required=True)
-    # country = serializers.CharField(required=True)
-    # state = serializers.CharField(required=True)
-    # visitReason = serializers.CharField(required=True)
+    country = CountrySerializer()
+    state = StateSerializer()
+    visitReason = serializers.CharField(required=True)
 
     class Meta:
         model = User
@@ -32,16 +47,19 @@ class CreateUserSerializer(serializers.ModelSerializer):
             "country",
             "state",
             "visitReason",
-            "role",
+            # "role",
         )
-
         write_only_fields = ("password",)
         read_only_fields = ("id",)
+
+        depth = 1
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
         user.set_password(validated_data["password"])
-        user.is_active = True
+        if not user.is_superuser:
+            user.role = 'customer'
+        user.is_active = False
         user.save()
         return user
 
@@ -103,18 +121,6 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         )
 
     read_only_fields = ("id",)
-
-
-class CountrySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Country
-        fields = ['id', 'name', 'code2']
-
-
-class StateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Region
-        fields = ['id', 'name']
 
 
 class ReadUserSerializer(serializers.ModelSerializer):
